@@ -3,20 +3,13 @@ from sklearn.model_selection import train_test_split
 
 df = pd.read_csv("tourism_package/data/tourism.csv")
 
-df.drop(columns=["Unnamed: 0","CustomerID"], axis=1, inplace=True)
+df.drop(columns=["Unnamed: 0", "CustomerID"], axis=1, inplace=True)
 
-df["Gender"] = df["Gender"].replace({"Male": "1", "Female": "2", "Fe Male" : "2"})
+# Fix typo only — keep human-readable labels so they match app.py's input values
+df["Gender"] = df["Gender"].replace({"Fe Male": "Female"})
+df["MaritalStatus"] = df["MaritalStatus"].replace({"Unmarried": "Single"})
 
-df["MaritalStatus"].replace("Unmarried", "Single", inplace=True)
-
-#Fixing the data types
-cols = df.select_dtypes(['object'])
-cols.columns
-
-for i in cols.columns:
-    df[i] = df[i].astype('category')
-
-# Cap only the extreme outliers (e.g., 99th percentile) rather than IQR bound
+# Cap only the extreme outliers (99th percentile)
 upper_cap = df['NumberOfTrips'].quantile(0.99)
 df['NumberOfTrips'] = df['NumberOfTrips'].clip(upper=upper_cap)
 print(f"NumberOfTrips capped at {upper_cap}")
@@ -34,4 +27,3 @@ ytrain.to_csv("ytrain.csv", index=False)
 ytest.to_csv("ytest.csv", index=False)
 
 print("Data prepared: train/test splits written.")
-print("Type values kept as:", sorted(X["Type"].unique()))
