@@ -40,15 +40,17 @@ preprocessor = ColumnTransformer(transformers=[
     ('cat', categorical_transformer, cat_cols)
 ])
 
-
-
 # Define base XGBoost model
-xgb_model = XGBClassifier(scale_pos_weight=class_weight, random_state=42,eval_metric='logloss')
+xgb_model = XGBClassifier(
+    scale_pos_weight=class_weight,
+    random_state=42,
+    eval_metric='logloss',
+    n_jobs=1  # avoid CPU oversubscription with GridSearchCV's n_jobs=-1
+)
 
-
-# Grid of parameters to choose from
+# Same search space as before — just searched via RandomizedSearchCV
 parameters = {
-      "xgbclassifier__n_estimators": [10, 30, 50],
+    "xgbclassifier__n_estimators": [10, 30, 50],
     "xgbclassifier__scale_pos_weight": [1, 2, 5],
     "xgbclassifier__subsample": [0.7, 0.9, 1],
     "xgbclassifier__learning_rate": [0.05, 0.1, 0.2],
